@@ -1,0 +1,6 @@
+int main() {
+	FirstPage firstPage;
+	firstPage.firstPage();
+
+	return 0;
+}
