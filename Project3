@@ -1,0 +1,370 @@
+class FirstPage {
+	private:
+		vector<User> users;
+		int optionalSelected;
+		User admin;
+		vector<Good> goods;
+		Currency currency;
+		ofstream csvFile;
+
+		float dollarValue;
+		float euroValue;
+		float tomanvalue;
+
+	public:
+		FirstPage()
+			: currency(TOMAN), dollarValue(50450), euroValue(55150), tomanvalue(1000) {
+			users.push_back(User("Nazanin", "13821115"));
+			admin = User("Nazanin", "13821115");
+
+			ofstream userFile("Users.txt");
+			userFile << "Username: Nazanin\nPassword: 13821115\n----------------\n";
+			userFile.close();
+
+			Good good1("Kitkat", 30000);
+			good1.setNo(15);
+			Good good2("Hype", 100000);
+			good2.setNo(30);
+            Good good3("Milk", 25000);
+			good2.setNo(25);
+			goods.push_back(good1);
+			goods.push_back(good2);
+            goods.push_back(good3);
+            
+		}
+
+		void firstPage() {
+			cout << "Welcome!" << endl;
+			cout << "Press 1 for login" << endl;
+			cout << "Press 2 for sign in" << endl;
+			cin >> optionalSelected;
+
+			switch (optionalSelected) {
+				case 1:
+					logIn();
+					break;
+				case 2:
+					signIn();
+					break;
+				default:
+					firstPage();
+			}
+		}
+
+		void signIn() {
+			string username, password;
+
+			cout << "Enter username: ";
+			cin.ignore();
+			getline(cin, username);
+			cout << "Enter password: ";
+			getline(cin, password);
+
+			users.push_back(User(username, password));
+			system("CLS");
+			cout << "Done!" << endl;
+
+			ofstream userFile("Users.txt",ios::app);
+			userFile << "Username: " << username << "\nPassword: " << password << "\n----------------\n";
+			userFile.close();
+
+			firstPage();
+		}
+
+		void logIn() {
+			string username, password;
+
+			cout << "Enter username: ";
+			cin.ignore();
+			getline(cin, username);
+			cout << "Enter password: ";
+			getline(cin, password);
+
+			if (username == admin.getUserName() && password == admin.getPassword()) {
+				system("CLS");
+				adminMode();
+				return;
+			}
+
+			for (const User& user : users) {
+				if (user.getUserName() == username && user.getPassword() == password) {
+					system("CLS");
+					secondPage();
+					return;
+				}
+			}
+			system("CLS");
+			cout << "User not found" << std::endl;
+			firstPage();
+		}
+
+		void adminMode() {
+			cout << "ADMIN MODE!" << std::endl;
+			cout << "Press 1 for show goods" << std::endl;
+			cout << "Press 2 for export goods stock" << std::endl;
+			cout << "Press 3 for update money" << std::endl;
+			cout << "Press 4 for delete goods" << std::endl;
+			cout << "Press 5 for add goods" << std::endl;
+			cout << "Press 6 for edit goods" << std::endl;
+			cin >> optionalSelected;
+
+			switch (optionalSelected) {
+				case 1:
+					showGoodsAdmin();
+					break;
+				case 2:
+					exportGoods();
+					break;
+				case 3:
+					updateMoney();
+					break;
+				case 4:
+					deleteGoods();
+					break;
+				case 5:
+					addGoods();
+					break;
+				case 6:
+					editGood();
+					break;
+				default:
+					adminMode();
+			}
+		}
+		void deleteGoods() {
+			system("CLS");
+			for (int i = 0; i < goods.size(); i++) {
+				cout << "Name: " << goods[i].getName() << endl;
+				cout << "No: " << goods[i].getNo() << endl;
+				cout << "Price: " << goods[i].getPrice() << endl;
+				cout << "----------------" << endl;
+			}
+			cout << "Press number of good you want" << endl;
+			int i;
+			cin >> i;
+			goods.erase(goods.begin() + i - 1);
+			system("CLS");
+			cout << "Done" << endl;
+			adminMode();
+		}
+		void editGood() {
+			system("CLS");
+			for (int i = 0; i < goods.size(); i++) {
+				cout << "Name: " << goods[i].getName() << endl;
+				cout << "No: " << goods[i].getNo() << endl;
+				cout << "Price: " << goods[i].getPrice() << endl;
+				cout << "----------------" << endl;
+			}
+			cout << "Press number of good you want" << endl;
+			int i;
+			cin >> i;
+			cout << "Enter 1 for change no and 2 for price" << endl;
+			cin >> optionalSelected;
+			if (optionalSelected == 1) {
+				cout << "Enter new value" << endl;
+				int j;
+				cin >> j;
+				goods[i - 1].setNo(j);
+			} else if (optionalSelected == 2) {
+				cout << "Enter new value" << endl;
+				float j;
+				cin >> j;
+				goods[i - 1].setPrice(j);
+			}
+			system("CLS");
+			cout << "Done" << endl;
+			adminMode();
+		}
+
+		void addGoods() {
+			system("CLS");
+			string name;
+			float price;
+			int no;
+			cout << "Enter good name" << endl;
+			cin.ignore();
+			getline(cin, name);
+			cout << "Enter good Toman price" << endl;
+			cin >> price;
+			cout << "Enter no of goods" << endl;
+			cin >> no;
+			Good good = Good(name, price);
+			good.setNo(no);
+			goods.push_back(good);
+			system("CLS");
+			cout << "Done" << endl;
+			adminMode();
+		};
+
+		void showGoodsAdmin() {
+			system("CLS");
+			for (const Good& good : goods) {
+				cout << "Name: " << good.getName() << endl;
+				cout << "No: " << good.getNo() << endl;
+				cout << "Price: " << good.getPrice() << endl;
+				cout << "----------------" << endl;
+			}
+
+			cout << "Press any key for back" << endl;
+			cin.ignore();
+			cin.get();
+			system("CLS");
+			adminMode();
+		}
+
+		void exportGoods() {
+			ofstream goodsFile("Goods.txt");
+			for (const Good& good : goods) {
+				goodsFile << "Name: " << good.getName() << "\nNo: " << good.getNo() << "\nPrice: " << good.getPrice() << "\n----------------\n";
+			}
+			goodsFile.close();
+			system("CLS");
+
+			cout << "Goods exported successfully." << endl;
+			adminMode();
+		}
+
+		void updateMoney() {
+			system("CLS");
+			cout << "Press 1 for Dollar and 2 for Euro" << endl;
+			cin >> optionalSelected;
+
+			switch (optionalSelected) {
+				case 1:
+					cout << "Enter new value: ";
+					cin >> dollarValue;
+					system("CLS");
+					cout << "Done" << endl;
+					break;
+				case 2:
+					cout << "Enter new value: ";
+					cin >> euroValue;
+					system("CLS");
+					cout << "Done" << endl;
+					break;
+				default:
+					updateMoney();
+			}
+
+			adminMode();
+		}
+
+		void secondPage() {
+			system("CLS");
+			cout << "Welcome" << endl;
+			cout << "Press 1 for buying" << endl;
+			cout << "Press 2 for change currency" << endl;
+			cin >> optionalSelected;
+			system("CLS");
+			switch (optionalSelected) {
+				case 1:
+					buying();
+					break;
+				case 2:
+					changeCurrency();
+					break;
+				default:
+					secondPage();
+			}
+		}
+
+		void buying() {
+			for (const Good& good : goods) {
+				cout << "Name: " << good.getName() << endl;
+				cout << "No: " << good.getNo() << endl;
+				cout << "Price: " << good.getPrice() << endl;
+				cout << "----------------" << endl;
+			}
+
+			int i, no;
+			cout << "Press the number of the good you want: ";
+			cin >> i;
+			cout << "How many do you want? ";
+			cin >> no;
+
+			goods[i - 1].decreaseNo(no);
+
+			cout << "You ordered " << no << " of " << goods[i - 1].getName() << endl;
+			receiptToFile(i - 1, no);
+		}
+
+		void receiptToFile(int i, int no) {
+			// Write to txt file
+			ofstream receiptTxtFile("Receipt.txt", ios::app);
+			receiptTxtFile << "Name: " << goods[i].getName() << "\nNo: " << no << "\nPrice: " << no * goods[i].getPrice() << "\n----------------\n";
+			receiptTxtFile.close();
+
+			// Write to csv file
+			ofstream receiptCsvFile("Receipt.csv", ios::app);
+			receiptCsvFile << "Name,No,Price\n" << goods[i].getName() << "," << no << "," << goods[i].getPrice() * no << "\n";
+			receiptCsvFile.close();
+			system("CLS");
+			cout << "Done" << endl;
+			secondPage();
+		}
+
+		void changeCurrency() {
+			cout << "Press 1 to change to Dollar" << endl;
+			cout << "Press 2 to change to Euro" << endl;
+			cout << "Press 3 to change to Toman" << endl;
+			cin >> optionalSelected;
+
+			float n = 1;
+			if (currency == Currency::TOMAN) {
+				switch (optionalSelected) {
+					case 1:
+						n = tomanvalue / dollarValue;
+						currency = Currency::DOLLAR;
+						break;
+					case 2:
+						n = tomanvalue / euroValue;
+						currency = Currency::EURO;
+						break;
+					case 3:
+						n = 1;
+						break;
+					default:
+						changeCurrency();
+				}
+			} else if (currency == Currency::DOLLAR) {
+				switch (optionalSelected) {
+					case 1:
+						n = 1;
+						break;
+					case 2:
+						n = dollarValue / euroValue;
+						currency = Currency::EURO;
+						break;
+					case 3:
+						n = dollarValue / tomanvalue;
+						currency = Currency::TOMAN;
+						break;
+					default:
+						changeCurrency();
+				}
+			} else if (currency == Currency::EURO) {
+				switch (optionalSelected) {
+					case 1:
+						n = euroValue / dollarValue;
+						currency = Currency::DOLLAR;
+						break;
+					case 2:
+						n = 1;
+						break;
+					case 3:
+						n = euroValue / tomanvalue;
+						currency = Currency::TOMAN;
+						break;
+					default:
+						changeCurrency();
+				}
+			}
+
+			for (Good& good : goods) {
+				good.setPrice(n * good.getPrice());
+			}
+			system("CLS");
+			cout << "Done" << endl;
+			secondPage();
+		}
+};
